@@ -1,0 +1,225 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\parindent = 0cm % sangria distancia
+%%
+\usepackage{amsmath}
+\usepackage{amssymb,amsfonts,latexsym,cancel}
+\providecommand{\abs}[1]{\lvert#1\rvert}
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\usepackage [ normalem ]{ ulem }
+\useunder { \uline }{ \ul }{}
+
+%%Algoritmos
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{verbatim}
+%%
+\usepackage[lmargin=2cm,rmargin=2cm,top=2.5cm,bottom=2cm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[L]{DEPTO. INGENIERÍA INDUSTRIAL \\ MATIAS BARRIENTOS ZAGAL\\OPTIMIZACION \ II\\2020-2}
+\fancyhead[R]{}
+%\includegraphics[scale=0.13]{escudoudec}
+\fancyfoot{}
+\fancyfoot[R]{}
+\fancyfoot[L]{}
+\renewcommand{\headrulewidth}{0.9pt}
+\renewcommand{\footrulewidth}{0.5pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{center}
+\textbf{Tarea 2}
+\end{center}
+
+\section{Metaheurística Propuesta}
+Se propone un Iterated Local Search (ILS) que se presenta en el \textbf{Algorithm 1} que contiene 4 componentes:
+la solución inicial (línea 1); una estrategia de perturbación (línea 5); dos estrategias de búsqueda
+local (línea 2 y en las líneas 6–7) y finalmente un criterio de aceptación (línea 8-9). El algoritmo
+contempla una solución actual y la mejor solución encontrada, $s$ y $s^*$, respectivamente. En la siguientes
+subsecciones se presentan con más detalles la representación, función objetivo, solución inicial, estrategia
+de perturbación, estrategias de búsqueda local, criterio de aceptación y parámetros.
+\begin{algorithm}[H]
+    \caption{Iterated Local Search}
+    \label{ils}
+    \begin{algorithmic}[1]
+    \State $s\gets $ heurística-vecino-mas-cercano-P$()$
+    \State $s\gets $3-opt$(s)$
+    \State $s* \gets s$
+    \Repeat
+        \State $s\gets $intercambio-aleatorio$(s)$
+        \State $s\gets $2-opt$(s)$
+        \State $s\gets $3-opt$(s)$
+        \State $s^* \gets $ si $f(s) < f(s^*)$
+        \State $s \gets$ criterio-aceptación$(f(s) \leq f(s^*): s,s^*)$
+        
+    \Until $100$ iteraciones
+    \end{algorithmic}
+\end{algorithm}
+\subsection{Representación}
+La represetanción usada es la de permutación, donde cada índice corresponde a una ciudad única,
+$s = \{1, . . . , n\}$.
+
+\subsection{Función Objetivo}
+Se utiliza la suma de las distancias euclidianas en cada ciudad como se presenta a continuación:
+\begin{equation}
+    f(s)= \sum_{i=1}^{n-1} distance(s_i , s_{i+1}) + distance(s_n , s_1)
+\end{equation}
+
+\subsection{Solución inicial}
+Se utilizó la heurística del vecino más cercano, donde el nodo inicial era el depósito, la cual representaba al valor $0$ en las representaciones del problema. Así, la idea del algoritmo es escoger la instalación $i$ más cercana al depósito, luego $i$ pasa a ser la nueva instalación escogida. Repetir el procedimiento de las instalaciones más cercanas hasta que no hayan más instalaciones disponibles.\\
+Por otra parte, se añadieron dos iteraciones \textbf{for}, para encontrar un subconjunto de instalaciones que cumplieran con satisfacer el beneficio $P$ de la respectiva instancia. La lógica era aplicar un filtro de los clientes que se estaban cubriendo, buscando no duplicar clientes que son cubiertos por dos instalaciones o más. Luego, se recorre esa lista con los clientes que realmente se cubren y se extraen las instalaciones pertinentes. El procedimiento anterior se presenta en el \textbf{Algorithm 2}.
+
+\begin{algorithm}[H]
+    \caption{VecinoMasCercano-P}
+    \label{NN}
+    \hspace*{} \textbf{Input:} $V$: ciudades, $d_{ij}$ : distancia de la arista $(i,j)$, $P:$ Beneficio \\
+    \hspace*{} \textbf{Output:} $s*=\{1, . . . , n\}$
+    \begin{algorithmic}[1]
+    \State Sol-mejor $  \gets \emptyset$
+    \State new-data $  \gets \emptyset$
+    \State seen $  \gets \emptyset$
+    \State $i \gets 0$ (depósito)
+    \State $S \gets S\cup \{i\}$
+    \State $S \gets V\setminus\{i\}$
+    \State $p \gets 0$ 
+    \While{$p<P$}
+        \State $k \gets $ mín$\{c_{ij}: j \in V\}$
+        \State $S \gets S\cup \{k\}$
+        \State $V \gets  V\setminus\{k\}$
+        \State $i \gets k$
+        \For{$i$ in I-clientes} 
+            \State first $ \gets i[0]$ 
+            \State second $ \gets i[1]$
+            \If{second in $S$}
+                \If{first in seen}
+                    \State \textbf{continue}
+                \State new-data $  \gets i$
+                \State seen $  \gets $ first
+                \State p $ \gets \#$\{seen\}
+                \EndIf
+            \EndIf
+        \EndFor
+        \For{$i$ in new-data}
+            \State Sol-mejor $  \gets i[1]$
+            \State s $ \gets $ Sol-mejor
+        \EndFor
+        \If{p $\geq $ P}
+            \State \textbf{break}
+            
+    \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{Estrategias de Perturbación}
+Se determinan dos enfoques para la estrategia de perturbación. El primero consiste en escoger una
+ $i$ aleatoriamente e intercambiar la instalación de esa posición con la instalación de la posición siguiente
+$(i + 1)$ de la ruta como se presenta en el \textbf{Algorithm 3}.
+
+\begin{algorithm}[H]
+    \caption{perturbacion}
+    \label{NN}
+    \hspace*{} \textbf{Input:} $s=\{1, . . . , n\}$ \\
+    \hspace*{} \textbf{Output:} $s^*$
+    \begin{algorithmic}[1]
+    \State escoger aleatoriamente una posición $i$
+    \State $s^*  \gets $ nueva ruta considerando el intercambio de las instalaciones en las posiciones $i$ y $i+1$
+   \end{algorithmic}
+\end{algorithm}    
+
+\newpage
+El segundo enfoque utilizado es una heurística de mejora que consiste en intercambiar instalaciones
+aleatoriamente 30 veces. Así, se tiene el  \textbf{Algorithm 4}
+
+\begin{algorithm}[H]
+    \caption{intercambio-aleatorio}
+    \label{NN}
+    \hspace*{} \textbf{Input:} $s=\{1, . . . , n\}$ \\
+    \hspace*{} \textbf{Output:} $s^*$
+    \begin{algorithmic}[1]
+    \Repeat
+        \State escoger aleatoriamente una posición $i$ de $s$
+        \State escoger aleatoriamente una posición $j$ de $s$
+        \State $s  \gets $ intercambiar las instalaciones de las posiciones $i$ y $j$
+    \Until 30 veces
+   \end{algorithmic}
+\end{algorithm}    
+\subsection{Estrategia de Búsqueda Local}
+En esta estrategia se utilizan dos enfoques. La primera es la búsqueda local 2-opt, la cual consiste
+en recorrer iterativamenete pares de arista e intercambiarlos. En caso de que con el intercambio la ruta
+mejore su costo, entonces, se mantiene, caso contrario se deshace. En particular, en esta implementación
+se utiliza la versión que si se encuentra una mejora el algoritmo se detiene. El algoritmo antes descrito se
+presentan en el  \textbf{Algorithm 5}
+\begin{algorithm}[H]
+    \caption{\ \ 2-Opt}
+    \label{2-opt}
+    \hspace*{} \textbf{Input:} $S=\{v_1,v_2,...,v_n\}$ , $c_{ij}$ : pesos de las aristas \\
+    \hspace*{} \textbf{Output:} $S'=$ Nueva Ruta 
+    \begin{algorithmic}[1]
+    \For{$i \gets 1$ hasta $n-2$}
+        \For{$j \gets i+1$ hasta $n-2$}
+            \If{$c_{v_iv_{i+1}} + c_{v_jv_{j+1}} > c_{v_iv_{i+1}} + c_{v_{i+1}v_{j+1}}$} \Then
+                \State Se desconecta $(v_i,v_{i+1})$ y $(v_j,v_{j+1})$
+                \State Se reemplaza por $(v_i,v_j)$ y $(v_{i+1},v_{j+1})$
+                \State Se actualiza el costo de la solución actual.
+            \EndIf
+        \EndFor
+    \EndFor
+    \end{algorithmic}
+\end{algorithm}
+El segundo enfoque fue una extensión del $2$-Opt, ya que se utilizó el $3$-Opt. Por simplicidad, se evita escribir el algoritmo. Sin embargo, hay que especificar que dicho algoritmo tiene 3 iteraciones de \textbf{for}.
+\subsection{Criterio de aceptación}
+Si la solución candidata es mejor que la actual, entonces candidata se acepta como solución actual, caso contrario se usa la mejor encontrada, vale decir, $f(s) \leq f(s^*)$.
+\subsection{Parámetros}
+El número de iteraciones se define en $100$ y los demás datos son respectivos de la instancia. Ya sea $|I|$,$|V|$,$|C|$ y el beneficio $P$. También, las coordenadas entre instalaciones vienen dadas en dos dimensiones, es decir, como un vector $(x_i, y_i)$ 
+\section{Resultados Computacionales}
+El algoritmo propuesto es implementado en Python 3.7. Por otra parte, las pruebas se realizaron en un Intel(R) Core(TM) i5-7300HQ CPU 2.50 GHz y 16 GB de RAM
+(ejecutado en un solo un hilo), en el sistema operativo Windows 10.
+
+\begin{table}[H]
+\centering
+\caption{Resultados instancias}
+\label{tab:my-table}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{instancias} & \textbf{V} & \textbf{I} & \textbf{costo optimo} & \textbf{ERP} & \textbf{promedio} & \textbf{tiempo} \\ \hline
+S1                  & 51         & 15         & 71,33                 & 37,39\%      & 98                & 0,0209          \\ \hline
+S2                  & 51         & 15         & 105,98                & 30,21\%      & 138               & 0,1625          \\ \hline
+S3                  & 51         & 15         & 172,36                & 2,11\%       & 176               & 0,4478          \\ \hline
+S4                  & 51         & 20         & 75,29                 & 2,27\%       & 77                & 0,0209          \\ \hline
+S5                  & 51         & 20         & 102,59                & 22,82\%      & 126               & 0,1806          \\ \hline
+S6                  & 51         & 25         & 38,49                 & 0,00\%       & 38,49             & 0,0099          \\ \hline
+S7                  & 51         & 25         & 82,38                 & 28,67\%      & 106               & 0,1874          \\ \hline
+S8                  & 51         & 25         & 140,62                & 8,09\%       & 152               & 0,6781          \\ \hline
+S9                  & 52         & 16         & 1378,45               & 62,94\%      & 2246              & 0,0458          \\ \hline
+S10                 & 52         & 16         & 2198,91               & 53,53\%      & 3376              & 0,0987          \\ \hline
+S11                 & 52         & 21         & 669,76                & 53,79\%      & 1030              & 0,0239          \\ \hline
+S12                 & 52         & 21         & 1554,5                & 45,51\%      & 2262              & 0,1002          \\ \hline
+S13                 & 52         & 21         & 3910,04               & 7,36\%       & 4198              & 0,6252          \\ \hline
+S14                 & 52         & 26         & 572,13                & 62,90\%      & 932               & 0,0505          \\ \hline
+S15                 & 52         & 26         & 1240,67               & 45,57\%      & 1806              & 0,2838          \\ \hline
+S16                 & 52         & 26         & 2958,78               & 10,89\%      & 3281              & 0,8803          \\ \hline
+S17                 & 52         & 16         & 1340,29               & 10,95\%      & 1487              & 0,0449          \\ \hline
+S18                 & 52         & 16         & 2291,58               & 71,72\%      & 3935              & 0,2749          \\ \hline
+S19                 & 52         & 21         & 878,3                 & 81,03\%      & 1590              & 0,0967          \\ \hline
+S20                 & 52         & 21         & 1521,64               & 4,49\%       & 1590              & 0,0970          \\ \hline
+S21                 & 52         & 21         & 3590,08               & 4,09\%       & 3737              & 0,4309          \\ \hline
+S22                 & 52         & 26         & 479,76                & 93,22\%      & 927               & 0,0219          \\ \hline
+S23                 & 52         & 26         & 1334,81               & 29,83\%      & 1733              & 0,1915          \\ \hline
+S24                 & 52         & 26         & 2894,96               & 13,20\%      & 3277              & 0,6229          \\ \hline
+S25                 & 76         & 23         & 98,94                 & 20,27\%      & 119               & 0,2828          \\ \hline
+S26                 & 76         & 23         & 147,89                & 19,01\%      & 176               & 0,8764          \\ \hline
+S27                 & 76         & 30         & 86,16                 & 20,71\%      & 104               & 0,1635          \\ \hline
+S28                 & 76         & 30         & 119,54                & 51,41\%      & 181               & 2,5626          \\ \hline
+S29                 & 76         & 38         & 57,79                 & 34,97\%      & 78                & 0,1800          \\ \hline
+S30                 & 76         & 38         & 106,39                & 51,33\%      & 161               & 0,4399          \\ \hline
+S31                 & 76         & 38         & 173,59                & 21,55\%      & 211               & 2,1011          \\ \hline
+S32                 & 76         & 38         & 20279,16              & 17,18\%  & 23763             & 0,2842          \\ \hline
+promedio            & 57,75      & 23,875     & 1583,53625            & 31,84\%      & 1972,234063       & 0,3902          \\ \hline
+\end{tabular}
+\end{table}
+
+\end{document}
