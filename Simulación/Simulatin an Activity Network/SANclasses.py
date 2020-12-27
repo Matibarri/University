@@ -25,7 +25,7 @@ class ActivityProcess(object):
             print("The activating event(s) were %s" %([x.name for x in myEvent]))
         tis = random.expovariate(1.0)
         yield self.env.timeout(tis)
-        finishtime = self.env.now()
+        finishtime = self.env.now
         if finishtime > SANglobal.finishtime:
             SANglobal.finishtime = finishtime
         SANglobal.F.nodecomplete[node].event.succeed()
@@ -46,13 +46,4 @@ class CustomEvent(object):
         self.env = env
         self.event = self.env.event()
 
-class SANglobal():
-    F = nx.DiGraph()
-    a = 0
-    b = 1
-    c = 2
-    d = 3
-    inTo = 0
-    F.add_nodes_from([a,b,c,d])
-    F.add_edges_from([(a,b), (a,c), (b,c), (b,d), (c,d)])
-    finishtime = 0
+
