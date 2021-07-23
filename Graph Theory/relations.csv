@@ -1,0 +1,20 @@
+followee,relation,follower
+Mati,FOLLOW,Cami
+Daniel,FOLLOW,Consu
+El mostrador,FOLLOW,Daniel
+El mostrador,FOLLOW,Gary Medel
+Cami,FOLLOW,Consu
+Cami,FOLLOW,Nacho
+Cooperativa,FOLLOW,Mati
+Cooperativa,FOLLOW,Daniel
+Cooperativa,FOLLOW,Gary Medel
+La Tercera,FOLLOW,Cami
+El mostrador,FOLLOW,Consu
+La Tercera,FOLLOW,Gary Medel
+Nacho,FOLLOW,Consu
+Nacho,FOLLOW,Pame
+La Tercera,FOLLOW,Pame
+Gary Medel,FOLLOW,Pame
+Icata,FOLLOW,Nacho
+Cami,FOLLOW,Mati
+Consu,FOLLOW,Daniel
