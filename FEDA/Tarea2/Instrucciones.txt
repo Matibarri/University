@@ -1,0 +1,13 @@
+Tarea 2 Progra Competitiva.
+
+Problemas: Uso de Estructuras de Datos.
+
+1) https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=1199
+2) https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=455
+3) https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=3644
+4) https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=919
+5) https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=2261
+6) https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=1842
+7) https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=3139
+8) Correctitud Problema: 11988 - Broken Keyboard (a.k.a. Beiju Text)
+
